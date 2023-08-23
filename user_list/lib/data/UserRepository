@@ -1,0 +1,31 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:user_list/domain/user.dart';
+
+class UserRepository {
+  final http.Client _httpClient;
+
+  UserRepository({http.Client? httpClient}) : _httpClient = httpClient ?? http.Client();
+
+  Future<List<User>> fetchMaleUsers(int count) async {
+    final response = await _httpClient.get(Uri.parse('https://randomuser.me/api/?gender=male&results=$count'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      final List<dynamic> results = jsonData['results'];
+      return results.map<User>((userJson) => User.fromJson(userJson)).toList();
+    } else {
+      throw Exception('Failed to load male users');
+    }
+  }
+
+  Future<List<User>> fetchFemaleUsers(int count) async {
+    final response = await _httpClient.get(Uri.parse('https://randomuser.me/api/?gender=female&results=$count'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      final List<dynamic> results = jsonData['results'];
+      return results.map<User>((userJson) => User.fromJson(userJson)).toList();
+    } else {
+      throw Exception('Failed to load female users');
+    }
+  }
+}
